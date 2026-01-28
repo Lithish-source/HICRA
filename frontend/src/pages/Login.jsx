@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import axios from 'axios';
-import { Lock, Mail, Loader2, AlertCircle } from 'lucide-react';
+import { Lock, Mail, Loader2, AlertCircle, Shield, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Login = ({ onLogin }) => {
     const [email, setEmail] = useState('');
@@ -23,124 +25,237 @@ const Login = ({ onLogin }) => {
 
             if (response.data.error) {
                 setError(response.data.error);
+                toast.error(response.data.error);
             } else {
                 // Successful login
                 const userData = response.data;
-                // Callback to update parent App state
                 onLogin(userData);
+                toast.success(`Welcome back, ${userData.name}!`);
                 navigate('/dashboard');
             }
         } catch (err) {
             console.error("Login failed:", err);
             setError('Connection error or server offline.');
+            toast.error('Connection error. Is the server running?');
         } finally {
             setLoading(false);
         }
     };
 
+    // Quick login buttons for demo
+    const handleQuickLogin = (type) => {
+        if (type === 'admin') {
+            setEmail('demo1@admin.com');
+            setPassword('12345');
+        } else {
+            setEmail('user1@gmail.com');
+            setPassword('password123');
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="flex justify-center text-primary">
-                    <Lock size={48} />
-                </div>
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
-                    Sign in to your account
-                </h2>
-                <p className="mt-2 text-center text-sm text-slate-600">
-                    Use <span className="font-mono bg-slate-200 px-1 rounded">demo1@admin.com</span> for Admin access
-                </p>
+        <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4">
+            {/* Animated Mesh Background */}
+            <div className="absolute inset-0 mesh-bg" />
+
+            {/* Floating Orbs */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <motion.div
+                    className="absolute w-72 h-72 bg-blue-500/30 rounded-full blur-3xl"
+                    animate={{
+                        x: [0, 100, 0],
+                        y: [0, -50, 0],
+                    }}
+                    transition={{
+                        duration: 20,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                    }}
+                    style={{ top: '10%', left: '10%' }}
+                />
+                <motion.div
+                    className="absolute w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
+                    animate={{
+                        x: [0, -80, 0],
+                        y: [0, 80, 0],
+                    }}
+                    transition={{
+                        duration: 25,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                    }}
+                    style={{ bottom: '10%', right: '10%' }}
+                />
+                <motion.div
+                    className="absolute w-64 h-64 bg-indigo-500/25 rounded-full blur-3xl"
+                    animate={{
+                        x: [0, 60, 0],
+                        y: [0, 60, 0],
+                    }}
+                    transition={{
+                        duration: 18,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                    }}
+                    style={{ top: '40%', right: '20%' }}
+                />
             </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow-card sm:rounded-lg sm:px-10 border border-slate-100">
-                    <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Login Card */}
+            <motion.div
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="relative w-full max-w-md"
+            >
+                {/* Glassmorphism Card */}
+                <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl">
+                    {/* Logo & Header */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-center mb-8"
+                    >
+                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 mb-4">
+                            <Shield className="w-10 h-10 text-white" />
+                        </div>
+                        <h1 className="text-3xl font-bold text-white mb-2">
+                            HIC<span className="text-blue-300">RA</span>
+                        </h1>
+                        <p className="text-blue-200/80 text-sm">
+                            Hybrid Interpretable Credit Risk Assessment
+                        </p>
+                    </motion.div>
 
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Email Field */}
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-slate-700">
-                                Email address
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                        >
+                            <label className="block text-sm font-medium text-blue-100 mb-2">
+                                Email Address
                             </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail size={20} className="text-slate-400" />
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Mail size={18} className="text-blue-300" />
                                 </div>
                                 <input
-                                    id="email"
-                                    name="email"
                                     type="email"
-                                    autoComplete="email"
                                     required
-                                    className="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-slate-300 rounded-md py-2 border"
+                                    className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                                     placeholder="you@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Password Field */}
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 }}
+                        >
+                            <label className="block text-sm font-medium text-blue-100 mb-2">
                                 Password
                             </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock size={20} className="text-slate-400" />
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Lock size={18} className="text-blue-300" />
                                 </div>
                                 <input
-                                    id="password"
-                                    name="password"
                                     type="password"
-                                    autoComplete="current-password"
                                     required
-                                    className="focus:ring-primary focus:border-primary block w-full pl-10 sm:text-sm border-slate-300 rounded-md py-2 border"
-                                    placeholder="Enter your password"
+                                    className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                                    placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Error Message */}
                         {error && (
-                            <div className="rounded-md bg-red-50 p-4">
-                                <div className="flex">
-                                    <div className="flex-shrink-0">
-                                        <AlertCircle size={20} className="text-red-400" />
-                                    </div>
-                                    <div className="ml-3">
-                                        <h3 className="text-sm font-medium text-red-800">
-                                            {error}
-                                        </h3>
-                                    </div>
-                                </div>
-                            </div>
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="flex items-center gap-2 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-200"
+                            >
+                                <AlertCircle size={18} />
+                                <span className="text-sm">{error}</span>
+                            </motion.div>
                         )}
 
                         {/* Submit Button */}
-                        <div>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
-                                    ${loading ? 'bg-primary/70 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary'}
-                                    transition-colors`}
-                            >
-                                {loading ? (
-                                    <>
-                                        <Loader2 size={20} className="animate-spin mr-2" />
-                                        Signing in...
-                                    </>
-                                ) : (
-                                    'Sign in'
-                                )}
-                            </button>
-                        </div>
+                        <motion.button
+                            type="submit"
+                            disabled={loading}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`w-full py-3.5 rounded-xl font-semibold text-white transition-all flex items-center justify-center gap-2 ${loading
+                                    ? 'bg-blue-500/50 cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40'
+                                }`}
+                        >
+                            {loading ? (
+                                <>
+                                    <Loader2 size={20} className="animate-spin" />
+                                    Signing in...
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles size={18} />
+                                    Sign In
+                                </>
+                            )}
+                        </motion.button>
                     </form>
 
+                    {/* Quick Login Buttons */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                        className="mt-6 pt-6 border-t border-white/10"
+                    >
+                        <p className="text-center text-blue-200/60 text-xs mb-3">
+                            Quick Demo Access
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => handleQuickLogin('admin')}
+                                className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-blue-100 text-sm font-medium transition-all"
+                            >
+                                👑 Admin
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleQuickLogin('user')}
+                                className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-blue-100 text-sm font-medium transition-all"
+                            >
+                                👤 User
+                            </button>
+                        </div>
+                    </motion.div>
                 </div>
-            </div>
+
+                {/* Footer Text */}
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.7 }}
+                    className="text-center text-blue-200/50 text-xs mt-6"
+                >
+                    Secure • Interpretable • Responsible AI
+                </motion.p>
+            </motion.div>
         </div>
     );
 };

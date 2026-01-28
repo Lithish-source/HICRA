@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import axios from 'axios';
 import { Network, GitBranch, Layout, Loader2, AlertCircle, Search, User, Download, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import RiskGauge from '../components/RiskGauge';
+import { toast } from 'sonner';
 
 const Dashboard = ({ user }) => {
     const location = useLocation();
@@ -541,37 +544,63 @@ const UserView = ({ data, profile }) => {
     return (
         <div className="space-y-6">
             {profile && (
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white dark:bg-dark-surface p-4 rounded-xl shadow-sm border border-slate-100 dark:border-dark-border flex justify-between items-center"
+                >
                     <div>
-                        <h1 className="text-xl font-bold text-gray-800">Welcome, {profile.name}</h1>
-                        <p className="text-sm text-gray-500">Here is your latest credit risk assessment.</p>
+                        <h1 className="text-xl font-bold text-gray-800 dark:text-white">Welcome, {profile.name}</h1>
+                        <p className="text-sm text-gray-500 dark:text-dark-muted">Here is your latest credit risk assessment.</p>
                     </div>
                     <div className="text-right hidden sm:block">
-                        <div className="text-xs text-gray-400">Email</div>
-                        <div className="font-medium text-gray-700">{profile.email}</div>
+                        <div className="text-xs text-gray-400 dark:text-dark-muted">Email</div>
+                        <div className="font-medium text-gray-700 dark:text-white">{profile.email}</div>
                     </div>
-                </div>
+                </motion.div>
             )}
 
-            {/* Top Risk Banner with Animated Gradient */}
-            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 animate-gradient rounded-2xl p-8 shadow-card flex flex-col items-center justify-center space-y-3 relative overflow-hidden">
-                <div className="absolute inset-0 bg-black/10"></div>
-                <div className={`${getRiskColor(risk_level)} text-white px-12 py-3 rounded-xl text-3xl font-extrabold shadow-lg tracking-wider uppercase animate-badge`}>
-                    {risk_level} RISK
+            {/* Risk Gauge Section */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 dark:from-dark-surface dark:via-dark-surface dark:to-dark-card rounded-2xl p-8 shadow-xl flex flex-col items-center justify-center relative overflow-hidden"
+            >
+                {/* Background effects */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.3),transparent_50%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(139,92,246,0.2),transparent_50%)]" />
+
+                <div className="relative z-10">
+                    <RiskGauge score={Math.round(final_confidence * 100)} size={220} />
                 </div>
-                <div className="text-white/80 font-medium relative z-10">
-                    Confidence Score: <span className="text-white font-bold animate-count">{Math.round(final_confidence * 100)}%</span>
-                </div>
-            </div>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 }}
+                    className="mt-4 text-center relative z-10"
+                >
+                    <p className="text-blue-200 text-sm">Hybrid Model Confidence</p>
+                    <p className={`text-xs mt-1 ${agreement ? 'text-green-400' : 'text-yellow-400'}`}>
+                        {agreement ? '✓ DT & NN Models Agree' : '⚠ Models Disagree - DT Priority'}
+                    </p>
+                </motion.div>
+            </motion.div>
 
             {/* 3-Column Result Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                 {/* Decision Tree Card */}
-                <div className="bg-white rounded-2xl p-6 shadow-soft border border-slate-100 flex flex-col h-full">
-                    <div className="flex items-center space-x-3 mb-4 text-gray-700">
-                        <div className="bg-green-100 p-2 rounded-lg">
-                            <GitBranch size={20} className="text-green-700" />
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-white dark:bg-dark-surface rounded-2xl p-6 shadow-soft dark:shadow-none border border-slate-100 dark:border-dark-border flex flex-col h-full"
+                >
+                    <div className="flex items-center space-x-3 mb-4 text-gray-700 dark:text-white">
+                        <div className="bg-green-100 dark:bg-green-500/20 p-2 rounded-lg">
+                            <GitBranch size={20} className="text-green-700 dark:text-green-400" />
                         </div>
                         <h3 className="font-bold text-lg">Decision Tree Result</h3>
                     </div>
@@ -599,13 +628,18 @@ const UserView = ({ data, profile }) => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Neural Network Card */}
-                <div className="bg-white rounded-2xl p-6 shadow-soft border border-slate-100 flex flex-col h-full">
-                    <div className="flex items-center space-x-3 mb-4 text-gray-700">
-                        <div className="bg-blue-100 p-2 rounded-lg">
-                            <Network size={20} className="text-blue-700" />
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="bg-white dark:bg-dark-surface rounded-2xl p-6 shadow-soft dark:shadow-none border border-slate-100 dark:border-dark-border flex flex-col h-full"
+                >
+                    <div className="flex items-center space-x-3 mb-4 text-gray-700 dark:text-white">
+                        <div className="bg-blue-100 dark:bg-blue-500/20 p-2 rounded-lg">
+                            <Network size={20} className="text-blue-700 dark:text-blue-400" />
                         </div>
                         <h3 className="font-bold text-lg">Neural Network Result</h3>
                     </div>
@@ -614,22 +648,27 @@ const UserView = ({ data, profile }) => {
                             Probability: {Math.round(nn_confidence * 100)}%
                         </div>
                         <div className="space-y-1">
-                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Analysis</p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs font-semibold text-gray-400 dark:text-dark-muted uppercase tracking-wide">Analysis</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
                                 Non-linear patterns analyzed. Deep learning model focuses on complex interactions.
                             </p>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Hybrid Model Card */}
-                <div className="bg-white rounded-2xl p-6 shadow-soft border border-slate-100 flex flex-col h-full relative overflow-hidden">
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="bg-white dark:bg-dark-surface rounded-2xl p-6 shadow-soft dark:shadow-none border border-slate-100 dark:border-dark-border flex flex-col h-full relative overflow-hidden"
+                >
                     <div className="absolute top-0 right-0 p-3 opacity-10">
                         <Layout size={100} />
                     </div>
-                    <div className="flex items-center space-x-3 mb-4 text-gray-700 relative z-10">
-                        <div className="bg-purple-100 p-2 rounded-lg">
-                            <Layout size={20} className="text-purple-700" />
+                    <div className="flex items-center space-x-3 mb-4 text-gray-700 dark:text-white relative z-10">
+                        <div className="bg-purple-100 dark:bg-purple-500/20 p-2 rounded-lg">
+                            <Layout size={20} className="text-purple-700 dark:text-purple-400" />
                         </div>
                         <h3 className="font-bold text-lg">Hybrid Model</h3>
                     </div>
@@ -637,20 +676,25 @@ const UserView = ({ data, profile }) => {
                         <div className={`${getRiskColor(risk_level)} text-white inline-block px-4 py-1.5 rounded-lg font-bold shadow-md`}>
                             {risk_level} Risk
                         </div>
-                        <div className="text-sm text-gray-600">
-                            <p className="font-semibold text-gray-900">Weighted Confidence: {Math.round(final_confidence * 100)}%</p>
-                            <p className={`mt-1 ${agreement ? 'text-green-600' : 'text-orange-500'} font-medium flex items-center`}>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className="font-semibold text-gray-900 dark:text-white">Weighted Confidence: {Math.round(final_confidence * 100)}%</p>
+                            <p className={`mt-1 ${agreement ? 'text-green-600 dark:text-green-400' : 'text-orange-500 dark:text-orange-400'} font-medium flex items-center`}>
                                 {agreement ? "DT & NN Agree" : "Models Disagree - DT Priority"}
                             </p>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
             </div>
 
             {/* Feature Importance Bars */}
-            <div className="bg-white rounded-2xl p-8 shadow-card border border-slate-100">
-                <h3 className="font-bold text-gray-700 mb-6">Feature Importance</h3>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="bg-white dark:bg-dark-surface rounded-2xl p-8 shadow-card dark:shadow-none border border-slate-100 dark:border-dark-border"
+            >
+                <h3 className="font-bold text-gray-700 dark:text-white mb-6">Feature Importance</h3>
 
                 <div className="space-y-4">
                     {explanation && explanation.feature_importance && Object.entries(explanation.feature_importance)
@@ -661,30 +705,41 @@ const UserView = ({ data, profile }) => {
                             const widthPct = Math.min(value * 200, 100);
 
                             return (
-                                <div key={key} className="flex items-center">
-                                    <div className="w-40 text-sm font-medium text-gray-600 capitalize">{key.replace(/_/g, ' ')}</div>
-                                    <div className="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
-                                        <div className={`h-full ${colorClass} rounded-full transition-all`} style={{ width: `${widthPct}%` }}></div>
+                                <motion.div
+                                    key={key}
+                                    className="flex items-center"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.7 + index * 0.05 }}
+                                >
+                                    <div className="w-40 text-sm font-medium text-gray-600 dark:text-gray-400 capitalize">{key.replace(/_/g, ' ')}</div>
+                                    <div className="flex-1 h-4 bg-gray-100 dark:bg-dark-border rounded-full overflow-hidden">
+                                        <motion.div
+                                            className={`h-full ${colorClass} rounded-full`}
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${widthPct}%` }}
+                                            transition={{ duration: 0.8, delay: 0.8 + index * 0.05 }}
+                                        />
                                     </div>
-                                    <div className="w-14 text-right text-sm font-bold text-gray-700">{Math.round(value * 100)}%</div>
-                                </div>
+                                    <div className="w-14 text-right text-sm font-bold text-gray-700 dark:text-white">{Math.round(value * 100)}%</div>
+                                </motion.div>
                             )
                         })}
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-gray-100 bg-gray-50 rounded-lg p-4">
-                    <span className="font-semibold text-gray-700 text-sm">Top Factors: </span>
-                    <span className="text-sm text-gray-600 ml-2">
+                <div className="mt-6 pt-4 border-t border-gray-100 dark:border-dark-border bg-gray-50 dark:bg-dark-bg rounded-lg p-4">
+                    <span className="font-semibold text-gray-700 dark:text-white text-sm">Top Factors: </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
                         {explanation ? "Identified from your financial profile." : "Loading..."}
                     </span>
                 </div>
 
                 <div className="mt-8 flex justify-center">
-                    <Link to="/what-if" className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors shadow-lg shadow-blue-900/20">
+                    <Link to="/what-if" className="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-900/20 hover:-translate-y-0.5">
                         Try What-If Analysis
                     </Link>
                 </div>
-            </div>
+            </motion.div>
 
         </div>
     );
