@@ -5,3 +5,12 @@ pandas
 numpy
 pydantic
 python-multipart
+
+# Database
+sqlalchemy>=2.0.0
+pymysql
+cryptography
+python-dotenv
+
+# Security
+passlib[bcrypt]
